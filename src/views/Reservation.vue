@@ -2,13 +2,14 @@
   <div class="Reservation">
    <div class="container">
      <h1>Reserveer je bezoek aan de Zoo!</h1>
+     <!-- <form action=""> -->
      <div class="datum">
        <p>Datum*</p>
-       <input type="date" v-model="datum">
+       <input type="date" name="datum" v-model="datum" required>
      </div>
      <div class="tijdslot*">
        <p>Tijdslot*</p>
-       <input type="time"  v-model="tijdslot">
+       <input type="time" name="tijd"  v-model="tijdslot" required>
      </div>
      <p>Bezoekers</p>
      <div class="bezoekers-container">
@@ -35,7 +36,8 @@
        </div>     
      </div>
      <button class="voegtoe" @click ="voegBezoekerToe">Voeg nog een bezoeker toe</button>
-     <button class="reserveer" @click="createReservatie">Reserveer!</button>
+     <button class="reserveer" @click="createReservatie" :disabled="(datum === '' || tijdslot === '' )">Reserveer!</button>
+     <!-- </form> -->
    </div>
   </div>
   <div class="reservatie">{{ reservatie }}</div>
@@ -68,21 +70,32 @@ export default {
     createReservatie(){
       this.reservatie = {"datum" : this.datum, "tijdslot": this.tijdslot, "bezoekers": this.bezoekers}
       console.log(this.reservatie)
+      // this.$router.push({name: 'ReservationDetails', params: {reservatie: this.reservatie}})
     },
 
     voegBezoekerToe(){
-      this.valideerNummer(this.nummer)
-      this.bezoekers.push({voornaam: this.voornaam, familienaam: this.familienaam, nummer: this.nummer})
-      this.voornaam = ''
-      this.familienaam = ''
-      this.nummer = ''
+      if (this.valideerBezoeker(this.nummer, this.voornaam, this.familienaam)){
+        this.bezoekers.push({voornaam: this.voornaam, familienaam: this.familienaam, nummer: this.nummer})
+        this.voornaam = ''
+        this.familienaam = ''
+        this.nummer = ''
+      }
+
     },
 
     deleteBezoeker(bezoeker){
       this.bezoekers.splice(this.bezoekers.indexOf(bezoeker), 1)
     },
 
-    valideerNummer(nummer){
+    valideerBezoeker(nummer, vn, fn){
+      //valideer voornaam / achternaam
+      if (!vn || !fn){
+        this.errormsg = "Voornaam / familienaam mogen niet leeg zijn!"
+        return false;
+      }
+
+      if (nummer == '') return true
+
       //valideer lengte
       var cijfers = nummer.replace(/-/g, '')
       if (cijfers.length != 10){
